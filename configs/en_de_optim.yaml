@@ -1,0 +1,109 @@
+###################################
+# Paths to change for every model #
+###################################
+save_data: models/simple_multilingual/en_de_optim/en_de_optim
+save_model: models/simple_multilingual/en_de_optim/en_de_optim
+log_file: models/simple_multilingual/en_de_optim/train_log
+# dump_preds: models/simple_baseline/met_test/train_preds
+
+
+########################
+# Tokenizer and vocabs #
+########################
+src_subword_type: sentencepiece
+src_subword_model: /home/alejandr.ramireza/workspace/data/spm/hsb_de_en_tagged_10/hsb_de_en_tagged_10.model
+src_vocab: /home/alejandr.ramireza/workspace/data/spm/hsb_de_en_tagged_10/hsb_de_en_tagged_10.vocab.pseudo
+share_vocab: true
+src_words_min_frequency: 2
+tgt_words_min_frequency: 2
+# Number of candidates for SentencePiece sampling
+subword_nbest: 1
+# Smoothing parameter for SentencePiece sampling
+subword_alpha: 0.0
+# Filter length
+src_seq_length: 501
+tgt_seq_length: 501
+
+
+########
+# DATA #
+########
+# Prevent overwriting existing files in the folder
+overwrite: True
+# Corpus opts:
+data:
+    corpus_1:
+        path_src: /home/alejandr.ramireza/workspace/data/cleaned/train/de-en/parallel/train120k_nc13_cleaned_de-en.en
+        path_tgt: /home/alejandr.ramireza/workspace/data/cleaned/train/de-en/parallel/train120k_nc13_cleaned_de-en.de
+        transforms: [sentencepiece]
+        weight: 1
+    valid:
+        path_src: /home/alejandr.ramireza/workspace/data/raw/dev/de-en/nc13_dev_de-en.en
+        path_tgt: /home/alejandr.ramireza/workspace/data/raw/dev/de-en/nc13_dev_de-en.de
+        transforms: [sentencepiece]
+        weight: 1
+
+#################################
+# Set number of GPUs & Batching #
+#################################
+world_size: 2
+gpu_ranks: [0,1]
+# Batching
+batch_type: tokens
+batch_size: 10000
+valid_batch_size: 1000
+max_generator_batches: 2
+accum_count: 2
+
+
+################
+# General opts #
+################
+save_checkpoint_steps: 2500
+train_steps: 145000 # careful if reset_optim, just the nb remaining!
+# reset_optim: all
+# train_from: models/simple_baseline/cs_de_tlm/cs_de_tlm_step_30000.pt
+
+
+###########
+# Logging #
+###########
+log_file_level: WARNING
+# valid_metrics: [BLEU] # adds [] to val_ppl and val_acc
+valid_steps: 2500 # when to get val_ppl, val_acc, and [valid_metrics]
+report_every: 2500 # tr_acc, tr_ppl, xent, lr, tok/s, sec
+
+# Train logging
+# dump_transforms: True
+# train_metrics: [BLEU] # has to be called with train_eval_steps
+# train_eval_steps: 10 # runs [train_metrics]
+# scoring_debug: True
+
+
+################
+# Optimization #
+################
+optim: adam
+learning_rate: 10.0
+adam_beta2: 0.998
+decay_method: noam
+warmup_steps: 16000
+label_smoothing: 0.1
+max_grad_norm: 5
+param_init: 0
+param_init_glorot: true
+normalization: tokens
+
+
+#########
+# Model #
+#########
+encoder_type: transformer
+decoder_type: transformer
+position_encoding: true
+layers: 6  # Same for enc/dec
+heads: 8
+rnn_size: 512
+word_vec_size: 512
+transformer_ff: 2048
+dropout: 0.3
